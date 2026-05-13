@@ -1,0 +1,6 @@
+KeepAwake.app/
+*.dSYM
+.DS_Store
+.build/
+build/
+*.xcuserdata
