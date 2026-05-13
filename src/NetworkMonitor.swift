@@ -31,7 +31,7 @@ final class NetworkMonitor {
     private var consecutiveNilReads = 0
     private var graceDeadline: Date?
     private var isPaused = false
-    private var lastEmittedEvent: NetworkEvent?
+    private var previousLoggedEvent: NetworkEvent?
 
     init(ssidProvider: SSIDProvider,
          clock: Clock = SystemClock(),
@@ -104,8 +104,10 @@ final class NetworkMonitor {
     }
 
     private func emit(_ event: NetworkEvent) {
-        lastEmittedEvent = event
-        Log.network.debug("event=\(String(describing: event), privacy: .public)")
+        if event != previousLoggedEvent {
+            Log.network.debug("event=\(String(describing: event), privacy: .public)")
+            previousLoggedEvent = event
+        }
         onEvent(event)
     }
 }
