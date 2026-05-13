@@ -39,8 +39,9 @@ final class IOPMAssertionExecutor: AssertionExecutor {
 
     func isStillHeld() -> Bool {
         guard isAcquired else { return false }
-        let props = IOPMAssertionCopyProperties(assertionID)
-        return props != nil
+        guard let props = IOPMAssertionCopyProperties(assertionID) else { return false }
+        props.release()
+        return true
     }
 }
 
