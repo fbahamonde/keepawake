@@ -69,4 +69,16 @@ final class DurationManagerTests: XCTestCase {
         manager.start(duration: .untilLidClose)
         XCTAssertNil(manager.deadline)
     }
+
+    func testRestartAfterExpirationCanFireAgain() {
+        manager.start(duration: .fifteenMin)
+        clock.advance(by: 16 * 60)
+        manager.check()
+        XCTAssertTrue(expiredFlag)
+        expiredFlag = false
+        manager.start(duration: .fifteenMin)
+        clock.advance(by: 16 * 60)
+        manager.check()
+        XCTAssertTrue(expiredFlag)
+    }
 }
