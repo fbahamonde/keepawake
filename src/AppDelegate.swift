@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var sanityTimer: Timer?
     private var wifiClient: CWWiFiClient!
+    private var lidMonitor: LidStateMonitor?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SingleInstanceGuard.enforceOrExit()
@@ -40,6 +41,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         duration = DurationManager(onExpired: { [weak self] in
             DispatchQueue.main.async { self?.handleDurationExpired() }
         })
+
+        lidMonitor = LidStateMonitor(onLidClosed: { [weak self] in
+            guard let s = self, s.prefs.duration == .untilLidClose else { return }
+            s.handleDurationExpired()
+        })
+        lidMonitor?.start()
 
         wifiClient = CWWiFiClient.shared()
         try? wifiClient.startMonitoringEvent(with: .ssidDidChange)
