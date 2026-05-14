@@ -57,6 +57,7 @@ Backups, jobs de sincronización, o tareas de trabajo que solo deberían avanzar
 - Toggle de un click en la menubar (ícono de taza y platillo, se rellena cuando está activo).
 - Presets de duración: 15 minutos, 1 hora, 2 horas, 5 horas, indefinido, o "hasta que se cierre la tapa".
 - **Activación por SSID de Wi-Fi** opcional: solo mantiene despierto cuando estás conectado a una red elegida, con un periodo de gracia de 60 segundos al cambiar de red.
+- Toggle opcional **Mantener pantalla despierta también**: por defecto solo el sistema queda despierto (la pantalla puede dormir, ahorra batería); actívalo si también quieres la pantalla encendida.
 - Toggle de Iniciar al Login (vía `SMAppService`).
 - Notificación del sistema de auto-apagado cuando termina una sesión con temporizador.
 - ~20 MB de RAM, 0% de CPU en reposo. Cero dependencias de terceros.
@@ -161,6 +162,9 @@ No. KeepAwake es solo para Apple Silicon (M1, M2, M3, M4). Si hay suficiente int
 
 ### ¿Funciona en macOS Ventura / Sonoma / Sequoia?
 macOS 14 (Sonoma), macOS 15 (Sequoia) y macOS 16+ son soportados. macOS 13 (Ventura) y anteriores no están testeados.
+
+### ¿KeepAwake mantiene la pantalla encendida también?
+Por defecto, no — solo el sistema queda despierto; la pantalla puede dormir (ahorra batería). Activa `Keep display awake too` en el menú si también quieres que la pantalla quede prendida (kiosco, grabación, dashboard). Gasta bastante más batería. Internamente KeepAwake agrega una segunda assertion, `PreventUserIdleDisplaySleep`, junto a la `PreventUserIdleSystemSleep` que siempre está activa.
 
 ### ¿Puedo usarlo con Claude Code, Cursor o agentes de IA de programación?
 Sí — esta es una de las razones principales por las que existe. Configura una duración (o "Indefinidamente") y KeepAwake va a mantener la assertion de inactividad mientras corre tu agente.

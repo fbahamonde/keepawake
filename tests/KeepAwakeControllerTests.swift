@@ -6,11 +6,13 @@ final class MockAssertionExecutor: AssertionExecutor {
     var acquireCallCount = 0
     var releaseCallCount = 0
     var shouldFailAcquire = false
+    var lastIncludeDisplay = false
 
-    func acquire(reason: String) throws {
+    func acquire(reason: String, includeDisplay: Bool) throws {
         if shouldFailAcquire { throw NSError(domain: "test", code: 1) }
         isHeld = true
         acquireCallCount += 1
+        lastIncludeDisplay = includeDisplay
     }
 
     func release() {
@@ -102,5 +104,35 @@ final class KeepAwakeControllerTests: XCTestCase {
         executor.shouldFailAcquire = true
         XCTAssertThrowsError(try controller.turnOn(target: nil, currentSSID: nil))
         XCTAssertEqual(controller.state, .off)
+    }
+
+    func testTurnOnDefaultsToSystemOnlyAssertion() throws {
+        try controller.turnOn(target: nil, currentSSID: nil)
+        XCTAssertFalse(executor.lastIncludeDisplay)
+    }
+
+    func testTurnOnWithDisplayPassesFlagToExecutor() throws {
+        try controller.turnOn(target: nil, currentSSID: nil, includeDisplay: true)
+        XCTAssertTrue(executor.lastIncludeDisplay)
+    }
+
+    func testSetIncludeDisplayUpdatesExecutorWhenRunning() throws {
+        try controller.turnOn(target: nil, currentSSID: nil, includeDisplay: false)
+        XCTAssertFalse(executor.lastIncludeDisplay)
+        controller.setIncludeDisplay(true)
+        XCTAssertTrue(executor.lastIncludeDisplay)
+    }
+
+    func testSetIncludeDisplayNoOpWhenOff() {
+        controller.setIncludeDisplay(true)
+        XCTAssertEqual(executor.acquireCallCount, 0)
+    }
+
+    func testResumeUsesStoredIncludeDisplay() throws {
+        try controller.turnOn(target: "Home", currentSSID: "Home", includeDisplay: true)
+        controller.handleNetworkEvent(.paused, target: "Home")
+        executor.lastIncludeDisplay = false
+        controller.handleNetworkEvent(.resumed(ssid: "Home"), target: "Home")
+        XCTAssertTrue(executor.lastIncludeDisplay)
     }
 }

@@ -30,4 +30,9 @@ final class Preferences {
         get { defaults.bool(forKey: "launchAtLogin") }
         set { defaults.set(newValue, forKey: "launchAtLogin") }
     }
+
+    var keepDisplayAwake: Bool {
+        get { defaults.bool(forKey: "keepDisplayAwake") }
+        set { defaults.set(newValue, forKey: "keepDisplayAwake") }
+    }
 }

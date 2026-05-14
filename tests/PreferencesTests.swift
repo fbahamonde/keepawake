@@ -49,4 +49,13 @@ final class PreferencesTests: XCTestCase {
         prefs.launchAtLogin = true
         XCTAssertTrue(prefs.launchAtLogin)
     }
+
+    func testKeepDisplayAwakeDefaultsFalse() {
+        XCTAssertFalse(prefs.keepDisplayAwake)
+    }
+
+    func testKeepDisplayAwakeRoundTrip() {
+        prefs.keepDisplayAwake = true
+        XCTAssertTrue(prefs.keepDisplayAwake)
+    }
 }

@@ -101,7 +101,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
     private func startKeepAwake() {
         let currentSSID = CoreWLANSSIDProvider().currentSSID()
         do {
-            try controller.turnOn(target: prefs.targetSSID, currentSSID: currentSSID)
+            try controller.turnOn(target: prefs.targetSSID, currentSSID: currentSSID, includeDisplay: prefs.keepDisplayAwake)
             duration.start(duration: prefs.duration)
             monitor.tick()
             refreshUI()
@@ -165,6 +165,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
                 self?.rebuildMenu()
             },
             toggleLaunchAtLogin: { [weak self] in self?.toggleLaunchAtLogin() },
+            toggleKeepDisplayAwake: { [weak self] in
+                guard let s = self else { return }
+                s.prefs.keepDisplayAwake.toggle()
+                s.controller.setIncludeDisplay(s.prefs.keepDisplayAwake)
+                s.rebuildMenu()
+            },
             showAbout: {
                 let credits = NSMutableAttributedString()
                 let base: [NSAttributedString.Key: Any] = [
@@ -202,6 +208,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
             currentSSID: currentSSID,
             duration: prefs.duration,
             launchAtLogin: prefs.launchAtLogin,
+            keepDisplayAwake: prefs.keepDisplayAwake,
             locationAuthorized: location.isAuthorized,
             callbacks: callbacks
         )
@@ -260,6 +267,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         🐕 filled + orange  = ON, wrong network, 60s countdown
         🐕 outline + gray   = paused, waiting to return to target
 
+        KEEP DISPLAY AWAKE TOO (optional)
+        By default, the system stays awake but the screen can sleep (saves battery). Enable this toggle if you also want the display to stay on (e.g. for a kiosk, a recording, or a chart you're watching). Costs noticeably more battery.
+
         LAUNCH AT LOGIN
         If enabled → the app starts automatically when you log in.
 
@@ -304,6 +314,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         🐕 filled negro     = ON, red OK (o sin target)
         🐕 filled + naranja = ON, red incorrecta, cuenta regresiva 60s
         🐕 outline + gris   = pausado, esperando volver a la red target
+
+        MANTENER PANTALLA DESPIERTA TAMBIÉN (opcional)
+        Por defecto, el sistema queda despierto pero la pantalla puede dormir (ahorra batería). Activa este toggle si también quieres que la pantalla quede prendida (ej: kiosco, grabación, dashboard que estás mirando). Gasta bastante más batería.
 
         LAUNCH AT LOGIN
         Si activas → la app arranca sola cuando inicias sesión.

@@ -57,6 +57,7 @@ Backups, sync jobs, or work tasks that should only progress on a trusted SSID (e
 - One-click toggle in the menubar (cup-and-saucer icon, fills when active).
 - Duration presets: 15 minutes, 1 hour, 2 hours, 5 hours, indefinite, or "until lid closes".
 - Optional **Wi-Fi SSID gating**: only keep awake when connected to a chosen network, with a 60-second grace period on network changes.
+- Optional **Keep display awake too** toggle: by default only the system stays awake (display can sleep, saves battery); enable this if you also want the screen on.
 - Launch at Login toggle (via `SMAppService`).
 - Auto-off system notification when a timed session ends.
 - ~20 MB RAM, 0% CPU when idle. Zero third-party dependencies.
@@ -161,6 +162,9 @@ No. KeepAwake is Apple Silicon only (M1, M2, M3, M4). If there's enough interest
 
 ### Does this work on macOS Ventura / Sonoma / Sequoia?
 macOS 14 (Sonoma), macOS 15 (Sequoia), and macOS 16+ are supported. macOS 13 (Ventura) and earlier are not tested.
+
+### Does KeepAwake keep my display on too?
+By default, no — only the system stays awake; the screen is free to sleep (saves battery). Enable `Keep display awake too` in the menu if you also want the display to stay on (kiosk, recording, dashboard). This uses noticeably more battery. Internally KeepAwake adds a second assertion, `PreventUserIdleDisplaySleep`, alongside the always-on `PreventUserIdleSystemSleep`.
 
 ### Can I use this with Claude Code, Cursor, or AI coding agents?
 Yes — this is one of the main reasons it exists. Set a duration (or "Indefinitely") and KeepAwake will hold the idle-sleep assertion while your agent runs.

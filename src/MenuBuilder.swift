@@ -7,6 +7,7 @@ final class MenuBuilder {
         let setTargetCurrent: () -> Void
         let clearTarget: () -> Void
         let toggleLaunchAtLogin: () -> Void
+        let toggleKeepDisplayAwake: () -> Void
         let showAbout: () -> Void
         let showHelp: () -> Void
         let openLocationSettings: () -> Void
@@ -18,6 +19,7 @@ final class MenuBuilder {
                currentSSID: String?,
                duration: Duration,
                launchAtLogin: Bool,
+               keepDisplayAwake: Bool,
                locationAuthorized: Bool,
                callbacks: Callbacks) -> NSMenu {
         let menu = NSMenu()
@@ -88,6 +90,13 @@ final class MenuBuilder {
         menu.addItem(netItem)
 
         menu.addItem(.separator())
+
+        let displayItem = NSMenuItem(title: "Keep display awake too", action: #selector(MenuActionRelay.run(_:)), keyEquivalent: "")
+        displayItem.target = MenuActionRelay.shared
+        displayItem.representedObject = callbacks.toggleKeepDisplayAwake as Any
+        displayItem.state = keepDisplayAwake ? .on : .off
+        displayItem.toolTip = "Also prevent the screen from sleeping. Uses more battery."
+        menu.addItem(displayItem)
 
         let loginItem = NSMenuItem(title: "Launch at Login", action: #selector(MenuActionRelay.run(_:)), keyEquivalent: "")
         loginItem.target = MenuActionRelay.shared
