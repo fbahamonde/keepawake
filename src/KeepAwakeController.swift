@@ -59,7 +59,7 @@ final class KeepAwakeController {
             guard case .off = state else { return }
             try executor.acquire(reason: "User enabled KeepAwake")
             state = .on(targetSSID: target, currentSSID: currentSSID)
-            Log.state.info("State: off -> on (target=\(target ?? "nil", privacy: .public))")
+            Log.state.info("State: off -> on (target=\(target ?? "nil", privacy: .private))")
         }
     }
 

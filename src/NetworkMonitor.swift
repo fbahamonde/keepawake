@@ -105,7 +105,7 @@ final class NetworkMonitor {
 
     private func emit(_ event: NetworkEvent) {
         if event != previousLoggedEvent {
-            Log.network.debug("event=\(String(describing: event), privacy: .public)")
+            Log.network.debug("event=\(String(describing: event), privacy: .private)")
             previousLoggedEvent = event
         }
         onEvent(event)
