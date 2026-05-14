@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Run tests
+        run: swift test
+
+      - name: Build app bundle
+        run: ./build.sh
+
+      - name: Package .app as zip
+        run: ditto -c -k --keepParent KeepAwake.app "KeepAwake-${{ github.ref_name }}.zip"
+
+      - name: Compute SHA256 checksum
+        run: shasum -a 256 "KeepAwake-${{ github.ref_name }}.zip" > "KeepAwake-${{ github.ref_name }}.zip.sha256"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            KeepAwake-${{ github.ref_name }}.zip
+            KeepAwake-${{ github.ref_name }}.zip.sha256
+          body: |
+            ## Installation
+
+            **This is an ad-hoc signed build** (no Apple Developer ID, no notarization).
+            macOS Gatekeeper will quarantine the app on first launch. To install:
+
+            1. Download `KeepAwake-${{ github.ref_name }}.zip` below and unzip it.
+            2. Remove the quarantine flag:
+               ```sh
+               xattr -d com.apple.quarantine KeepAwake.app
+               ```
+            3. Move `KeepAwake.app` to `~/Applications` (or `/Applications`).
+
+            **Alternative:** right-click `KeepAwake.app` and choose **Open** the first time — macOS will let you bypass Gatekeeper after confirming.
+
+            ### Verifying the download
+
+            ```sh
+            shasum -a 256 -c KeepAwake-${{ github.ref_name }}.zip.sha256
+            ```
+
+            ---
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
