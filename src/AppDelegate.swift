@@ -174,6 +174,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
                 NSApp.orderFrontStandardAboutPanel(nil)
                 NSApp.activate(ignoringOtherApps: true)
             },
+            showHelp: { [weak self] in self?.showHelp() },
             openLocationSettings: { LocationPermissionHelper.openSystemSettings() },
             quit: { NSApp.terminate(nil) }
         )
@@ -203,6 +204,57 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         } catch {
             alert("Launch at Login failed", message: error.localizedDescription)
         }
+    }
+
+    private func showHelp() {
+        let alert = NSAlert()
+        alert.messageText = "¿Cómo funciona KeepAwake?"
+        alert.informativeText = """
+        QUÉ HACE
+        Evita que tu Mac se duerma por inactividad. Útil cuando dejas un agente (Claude Code, build largo, descarga) corriendo y no quieres que el Mac se duerma.
+
+        ⚠️ LÍMITE IMPORTANTE
+        NO funciona con tapa cerrada en batería. Apple Silicon fuerza dormir por hardware. Solo sirve con tapa abierta.
+
+        CÓMO USARLA
+        • Click izquierdo en el perro 🐕 = encender/apagar
+           - Perro vacío (outline) = apagado
+           - Perro relleno (filled) = encendido, Mac no duerme
+        • Click derecho = abre este menú
+
+        DURATION (cuánto tiempo)
+        Elige cuánto rato quieres mantener despierto:
+        • 15 min / 1h / 2h / 5h = se apaga solo al expirar
+        • Indefinidamente = hasta que tú lo apagues
+        • Until lid closes = se apaga al cerrar tapa
+
+        ONLY ON NETWORK (gating por Wi-Fi)
+        Opcional. Solo mantiene despierto si estás en una red Wi-Fi específica.
+        1. Conéctate a la red que quieres (ej: hotspot del celular)
+        2. Menú → Only on network → "Set current Wi-Fi as target"
+        3. Si cambias de red → 60s de gracia → se auto-pausa
+        4. Vuelves a la red → se reactiva solo
+
+        Útil para: agente corriendo solo si tienes internet del celular.
+        Sin target = funciona siempre, sin validar red.
+
+        ESTADOS DEL ICONO
+        🐕 outline negro    = OFF
+        🐕 filled negro     = ON, red OK (o sin target)
+        🐕 filled + naranja = ON, red incorrecta, cuenta regresiva 60s
+        🐕 outline + gris   = pausado, esperando volver a red target
+
+        LAUNCH AT LOGIN
+        Si activas → app arranca sola cuando inicias sesión.
+
+        UBICACIÓN (¿por qué pide permiso?)
+        macOS clasifica el nombre de tu red Wi-Fi como dato sensible (revela dónde estás). Sin permiso, la app no puede leer el SSID y el gating no funciona. Sin permiso igual funciona keep-awake básico.
+
+        BATERÍA Y RAM
+        App usa ~20 MB RAM y 0% CPU. El gasto real viene del agente que corre, no de KeepAwake.
+        """
+        alert.addButton(withTitle: "Entendido")
+        alert.runModal()
     }
 
     private func openPreferences() {
