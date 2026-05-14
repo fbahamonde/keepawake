@@ -207,9 +207,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
     }
 
     private func showHelp() {
-        let alert = NSAlert()
-        alert.messageText = "¿Cómo funciona KeepAwake?"
-        alert.informativeText = """
+        let helpText = """
         QUÉ HACE
         Evita que tu Mac se duerma por inactividad. Útil cuando dejas un agente (Claude Code, build largo, descarga) corriendo y no quieres que el Mac se duerma.
 
@@ -220,7 +218,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         • Click izquierdo en el perro 🐕 = encender/apagar
            - Perro vacío (outline) = apagado
            - Perro relleno (filled) = encendido, Mac no duerme
-        • Click derecho = abre este menú
+        • Click derecho = abre el menú
 
         DURATION (cuánto tiempo)
         Elige cuánto rato quieres mantener despierto:
@@ -253,6 +251,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         BATERÍA Y RAM
         App usa ~20 MB RAM y 0% CPU. El gasto real viene del agente que corre, no de KeepAwake.
         """
+
+        let scrollSize = NSSize(width: 480, height: 380)
+        let scrollView = NSScrollView(frame: NSRect(origin: .zero, size: scrollSize))
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = false
+        scrollView.borderType = .bezelBorder
+
+        let textView = NSTextView(frame: NSRect(origin: .zero, size: scrollSize))
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.isRichText = false
+        textView.font = NSFont.systemFont(ofSize: 13)
+        textView.textContainerInset = NSSize(width: 8, height: 8)
+        textView.string = helpText
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.containerSize = NSSize(width: scrollSize.width, height: .greatestFiniteMagnitude)
+        textView.textContainer?.widthTracksTextView = true
+
+        scrollView.documentView = textView
+
+        let alert = NSAlert()
+        alert.messageText = "¿Cómo funciona KeepAwake?"
+        alert.informativeText = "Guía rápida — desplázate para ver todo."
+        alert.accessoryView = scrollView
         alert.addButton(withTitle: "Entendido")
         alert.runModal()
     }
