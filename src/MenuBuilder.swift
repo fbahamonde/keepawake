@@ -7,7 +7,6 @@ final class MenuBuilder {
         let setTargetCurrent: () -> Void
         let clearTarget: () -> Void
         let toggleLaunchAtLogin: () -> Void
-        let openPreferences: () -> Void
         let showAbout: () -> Void
         let showHelp: () -> Void
         let openLocationSettings: () -> Void
@@ -95,11 +94,6 @@ final class MenuBuilder {
         loginItem.representedObject = callbacks.toggleLaunchAtLogin as Any
         loginItem.state = launchAtLogin ? .on : .off
         menu.addItem(loginItem)
-
-        let prefs = NSMenuItem(title: "Preferences…", action: #selector(MenuActionRelay.run(_:)), keyEquivalent: ",")
-        prefs.target = MenuActionRelay.shared
-        prefs.representedObject = callbacks.openPreferences as Any
-        menu.addItem(prefs)
 
         let help = NSMenuItem(title: "How it works…", action: #selector(MenuActionRelay.run(_:)), keyEquivalent: "?")
         help.target = MenuActionRelay.shared

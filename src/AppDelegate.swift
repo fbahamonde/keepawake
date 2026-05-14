@@ -165,7 +165,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
                 self?.rebuildMenu()
             },
             toggleLaunchAtLogin: { [weak self] in self?.toggleLaunchAtLogin() },
-            openPreferences: { [weak self] in self?.openPreferences() },
             showAbout: {
                 NSApp.orderFrontStandardAboutPanel(nil)
                 NSApp.activate(ignoringOtherApps: true)
@@ -275,20 +274,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         alert.informativeText = "Guía rápida — desplázate para ver todo."
         alert.accessoryView = scrollView
         alert.addButton(withTitle: "Entendido")
-        alert.runModal()
-    }
-
-    private func openPreferences() {
-        let alert = NSAlert()
-        alert.messageText = "Preferences"
-        alert.informativeText = """
-        Target Wi-Fi: \(prefs.targetSSID ?? "(none)")
-        Duration: \(prefs.duration.label)
-        Launch at Login: \(prefs.launchAtLogin ? "Yes" : "No")
-
-        Use the menubar menu to change these settings.
-        """
-        alert.addButton(withTitle: "OK")
         alert.runModal()
     }
 
