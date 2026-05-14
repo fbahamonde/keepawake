@@ -60,13 +60,13 @@ final class StatusItemController {
     private func symbolFor(state: AppState) -> (String, NSColor?) {
         switch state {
         case .off:
-            return ("cup.and.saucer", nil)
+            return ("dog", nil)
         case .on:
-            return ("cup.and.saucer.fill", nil)
+            return ("dog.fill", nil)
         case .grace:
-            return ("cup.and.saucer.fill", .systemOrange)
+            return ("dog.fill", .systemOrange)
         case .paused:
-            return ("cup.and.saucer", .systemGray)
+            return ("dog", .systemGray)
         }
     }
 
