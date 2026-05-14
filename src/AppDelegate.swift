@@ -166,7 +166,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
             },
             toggleLaunchAtLogin: { [weak self] in self?.toggleLaunchAtLogin() },
             showAbout: {
-                NSApp.orderFrontStandardAboutPanel(nil)
+                let credits = NSMutableAttributedString()
+                let base: [NSAttributedString.Key: Any] = [
+                    .font: NSFont.systemFont(ofSize: 11),
+                    .foregroundColor: NSColor.labelColor
+                ]
+                credits.append(NSAttributedString(string: "Created by Felipe Bahamonde\n", attributes: base))
+                credits.append(NSAttributedString(
+                    string: "bahamondefelipem@gmail.com\n",
+                    attributes: base.merging([.link: URL(string: "mailto:bahamondefelipem@gmail.com")!]) { $1 }
+                ))
+                credits.append(NSAttributedString(string: "\n", attributes: base))
+                credits.append(NSAttributedString(
+                    string: "github.com/fbahamonde/keepawake\n",
+                    attributes: base.merging([.link: URL(string: "https://github.com/fbahamonde/keepawake")!]) { $1 }
+                ))
+                credits.append(NSAttributedString(string: "\nMIT License · Personal tool, no warranty.", attributes: base))
+
+                NSApp.orderFrontStandardAboutPanel(options: [
+                    .credits: credits,
+                    .applicationName: "KeepAwake",
+                    .applicationVersion: "1.0.0",
+                    NSApplication.AboutPanelOptionKey(rawValue: "Copyright"):
+                        "© 2026 Felipe Bahamonde"
+                ])
                 NSApp.activate(ignoringOtherApps: true)
             },
             showHelp: { [weak self] in self?.showHelp() },
@@ -202,12 +225,57 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
     }
 
     private func showHelp() {
-        let helpText = """
+        let englishText = """
+        WHAT IT DOES
+        Keeps your Mac from sleeping due to inactivity. Useful when leaving an AI agent (Claude Code, Cursor), a long build, a download, or a video call running.
+
+        ⚠️ IMPORTANT LIMITATION
+        Does NOT work with the lid closed on battery. Apple Silicon enforces clamshell sleep in firmware below the kernel. No software — not KeepAwake, not caffeinate, not Amphetamine — can bypass it. Useful only with the lid open.
+
+        HOW TO USE
+        • Left-click the dog icon 🐕 = toggle on/off
+           - Outline dog = off
+           - Filled dog = on, your Mac stays awake
+        • Right-click = open the menu
+
+        DURATION
+        Pick how long the session lasts:
+        • 15 min / 1h / 2h / 5h = auto-off when the timer expires
+        • Indefinitely = stays on until you turn it off
+        • Until lid closes = turns off when you close the lid
+
+        ONLY ON NETWORK (Wi-Fi gating)
+        Optional. Stay awake only when connected to a specific Wi-Fi network.
+        1. Connect to the Wi-Fi you want (e.g. your phone's hotspot)
+        2. Menu → Only on network → "Set current Wi-Fi as target"
+        3. If you switch networks → 60s grace period → auto-pauses
+        4. Reconnect to the target → re-acquires automatically
+
+        Useful for: an agent that should run only when you have phone internet.
+        With no target = works everywhere, no network check.
+
+        ICON STATES
+        🐕 outline black    = OFF
+        🐕 filled black     = ON, network OK (or no target)
+        🐕 filled + orange  = ON, wrong network, 60s countdown
+        🐕 outline + gray   = paused, waiting to return to target
+
+        LAUNCH AT LOGIN
+        If enabled → the app starts automatically when you log in.
+
+        LOCATION PERMISSION
+        macOS classifies the Wi-Fi name (SSID) as sensitive data — it can reveal where you are. Without Location permission, the app cannot read the SSID and Wi-Fi gating is disabled. Basic Keep Awake still works without it.
+
+        RESOURCES
+        ~20 MB RAM, 0% CPU when idle. The real battery cost comes from whatever you're running, not KeepAwake.
+        """
+
+        let spanishText = """
         QUÉ HACE
-        Evita que tu Mac se duerma por inactividad. Útil cuando dejas un agente (Claude Code, build largo, descarga) corriendo y no quieres que el Mac se duerma.
+        Evita que tu Mac se duerma por inactividad. Útil cuando dejas un agente (Claude Code, Cursor), un build largo, una descarga o una videollamada corriendo.
 
         ⚠️ LÍMITE IMPORTANTE
-        NO funciona con tapa cerrada en batería. Apple Silicon fuerza dormir por hardware. Solo sirve con tapa abierta.
+        NO funciona con la tapa cerrada en batería. Apple Silicon impone el sleep clamshell en firmware, debajo del kernel. Ningún software —ni KeepAwake, ni caffeinate, ni Amphetamine— puede saltarlo. Sirve solo con la tapa abierta.
 
         CÓMO USARLA
         • Click izquierdo en el perro 🐕 = encender/apagar
@@ -219,7 +287,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         Elige cuánto rato quieres mantener despierto:
         • 15 min / 1h / 2h / 5h = se apaga solo al expirar
         • Indefinidamente = hasta que tú lo apagues
-        • Until lid closes = se apaga al cerrar tapa
+        • Until lid closes = se apaga al cerrar la tapa
 
         ONLY ON NETWORK (gating por Wi-Fi)
         Opcional. Solo mantiene despierto si estás en una red Wi-Fi específica.
@@ -228,52 +296,62 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         3. Si cambias de red → 60s de gracia → se auto-pausa
         4. Vuelves a la red → se reactiva solo
 
-        Útil para: agente corriendo solo si tienes internet del celular.
+        Útil para: un agente que solo debería correr si tienes internet del celular.
         Sin target = funciona siempre, sin validar red.
 
         ESTADOS DEL ICONO
         🐕 outline negro    = OFF
         🐕 filled negro     = ON, red OK (o sin target)
         🐕 filled + naranja = ON, red incorrecta, cuenta regresiva 60s
-        🐕 outline + gris   = pausado, esperando volver a red target
+        🐕 outline + gris   = pausado, esperando volver a la red target
 
         LAUNCH AT LOGIN
-        Si activas → app arranca sola cuando inicias sesión.
+        Si activas → la app arranca sola cuando inicias sesión.
 
-        UBICACIÓN (¿por qué pide permiso?)
-        macOS clasifica el nombre de tu red Wi-Fi como dato sensible (revela dónde estás). Sin permiso, la app no puede leer el SSID y el gating no funciona. Sin permiso igual funciona keep-awake básico.
+        PERMISO DE UBICACIÓN
+        macOS clasifica el nombre de tu red Wi-Fi (SSID) como dato sensible — revela dónde estás. Sin permiso, la app no puede leer el SSID y el gating Wi-Fi queda desactivado. Sin permiso igual funciona el keep-awake básico.
 
-        BATERÍA Y RAM
-        App usa ~20 MB RAM y 0% CPU. El gasto real viene del agente que corre, no de KeepAwake.
+        RECURSOS
+        ~20 MB de RAM, 0% de CPU en idle. El gasto real de batería viene de lo que estés corriendo, no de KeepAwake.
         """
 
-        let scrollSize = NSSize(width: 480, height: 380)
-        let scrollView = NSScrollView(frame: NSRect(origin: .zero, size: scrollSize))
-        scrollView.hasVerticalScroller = true
-        scrollView.hasHorizontalScroller = false
-        scrollView.autohidesScrollers = false
-        scrollView.borderType = .bezelBorder
+        let tabSize = NSSize(width: 520, height: 420)
+        let tabView = NSTabView(frame: NSRect(origin: .zero, size: tabSize))
+        tabView.tabViewType = .topTabsBezelBorder
 
-        let textView = NSTextView(frame: NSRect(origin: .zero, size: scrollSize))
-        textView.isEditable = false
-        textView.isSelectable = true
-        textView.isRichText = false
-        textView.font = NSFont.systemFont(ofSize: 13)
-        textView.textContainerInset = NSSize(width: 8, height: 8)
-        textView.string = helpText
-        textView.isVerticallyResizable = true
-        textView.isHorizontallyResizable = false
-        textView.autoresizingMask = [.width]
-        textView.textContainer?.containerSize = NSSize(width: scrollSize.width, height: .greatestFiniteMagnitude)
-        textView.textContainer?.widthTracksTextView = true
+        for (title, text) in [("English", englishText), ("Español", spanishText)] {
+            let scroll = NSScrollView(frame: NSRect(origin: .zero, size: tabSize))
+            scroll.hasVerticalScroller = true
+            scroll.hasHorizontalScroller = false
+            scroll.autohidesScrollers = false
+            scroll.borderType = .noBorder
 
-        scrollView.documentView = textView
+            let tv = NSTextView(frame: NSRect(origin: .zero, size: tabSize))
+            tv.isEditable = false
+            tv.isSelectable = true
+            tv.isRichText = false
+            tv.font = NSFont.systemFont(ofSize: 13)
+            tv.textContainerInset = NSSize(width: 10, height: 10)
+            tv.string = text
+            tv.isVerticallyResizable = true
+            tv.isHorizontallyResizable = false
+            tv.autoresizingMask = [.width]
+            tv.textContainer?.containerSize = NSSize(width: tabSize.width, height: .greatestFiniteMagnitude)
+            tv.textContainer?.widthTracksTextView = true
+
+            scroll.documentView = tv
+
+            let item = NSTabViewItem(identifier: title)
+            item.label = title
+            item.view = scroll
+            tabView.addTabViewItem(item)
+        }
 
         let alert = NSAlert()
-        alert.messageText = "¿Cómo funciona KeepAwake?"
-        alert.informativeText = "Guía rápida — desplázate para ver todo."
-        alert.accessoryView = scrollView
-        alert.addButton(withTitle: "Entendido")
+        alert.messageText = "How KeepAwake works · Cómo funciona KeepAwake"
+        alert.informativeText = "Switch tabs for English / Español."
+        alert.accessoryView = tabView
+        alert.addButton(withTitle: "OK")
         alert.runModal()
     }
 
