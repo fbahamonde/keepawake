@@ -39,9 +39,13 @@ final class IOPMAssertionExecutor: AssertionExecutor {
 
     func isStillHeld() -> Bool {
         guard isAcquired else { return false }
-        guard let props = IOPMAssertionCopyProperties(assertionID) else { return false }
-        props.release()
-        return true
+        guard let unmanaged = IOPMAssertionCopyProperties(assertionID) else { return false }
+        let props = unmanaged.takeRetainedValue() as? [String: Any] ?? [:]
+        let levelKey = kIOPMAssertionLevelKey as String
+        if let level = props[levelKey] as? Int, level == kIOPMAssertionLevelOn {
+            return true
+        }
+        return false
     }
 }
 
