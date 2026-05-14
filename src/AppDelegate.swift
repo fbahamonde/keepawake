@@ -5,7 +5,7 @@ import UserNotifications
 import IOKit
 import IOKit.pwr_mgt
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
     private let prefs = Preferences()
     private let executor = IOPMAssertionExecutor()
     private var controller: KeepAwakeController!
@@ -50,6 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         wifiClient = CWWiFiClient.shared()
         try? wifiClient.startMonitoringEvent(with: .ssidDidChange)
+        wifiClient.delegate = self
 
         sanityTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             self?.monitor.tick()
@@ -73,6 +74,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         monitor.tick()
         refreshUI()
+    }
+
+    func ssidDidChangeForWiFiInterface(withName interfaceName: String) {
+        Log.network.info("SSID changed on \(interfaceName, privacy: .public)")
+        DispatchQueue.main.async { [weak self] in
+            self?.monitor.tick()
+            self?.refreshUI()
+        }
     }
 
     @objc private func handleWake() {
