@@ -23,11 +23,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
         SingleInstanceGuard.enforceOrExit()
         Log.lifecycle.info("Launched")
 
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
-            if let e = error { Log.lifecycle.error("Notif auth error: \(e.localizedDescription)") }
-            Log.lifecycle.info("Notif auth granted=\(granted)")
-        }
-
         controller = KeepAwakeController(executor: executor)
 
         monitor = NetworkMonitor(
@@ -152,6 +147,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
             setDuration: { [weak self] d in
                 guard let s = self else { return }
                 s.prefs.duration = d
+                if d.seconds != nil { s.requestNotificationAuthIfNeeded() }
                 if s.controller.state.isAssertionHeld {
                     s.duration.start(duration: d)
                 }
@@ -305,10 +301,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, CWEventDelegate {
     }
 
     private func notify(title: String, body: String) {
+        requestNotificationAuthIfNeeded()
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         let req = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(req)
+    }
+
+    private func requestNotificationAuthIfNeeded() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            if settings.authorizationStatus == .notDetermined {
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+                    if let e = error { Log.lifecycle.error("Notif auth error: \(e.localizedDescription)") }
+                    Log.lifecycle.info("Notif auth granted=\(granted)")
+                }
+            }
+        }
     }
 }
