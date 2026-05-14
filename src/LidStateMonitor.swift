@@ -1,9 +1,10 @@
 import Foundation
 import IOKit
 
-// kIOMessageServicePropertyChange = iokit_common_msg(0x130) = sys_iokit | sub_iokit_common | 0x130
-// = 0xE0000000 | 0x00000000 | 0x130 = 0xE0000130. The macro isn't bridged into Swift.
-private let kIOMessageServicePropertyChangeValue: UInt32 = 0xE0000130
+// kIOMessageServicePropertyChange = iokit_common_msg(0x30) = sys_iokit | sub_iokit_common | 0x30
+// = 0xE0000000 | 0x00000000 | 0x30 = 0xE0000030. The macro isn't bridged into Swift.
+// See <IOKit/IOMessage.h>.
+private let kIOMessageServicePropertyChangeValue: UInt32 = 0xE0000030
 
 final class LidStateMonitor {
     private var notificationPort: IONotificationPortRef?
